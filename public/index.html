@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retro Tech Forum</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <header>
+      <h1>Speak freely</h1>
+    </header>
+    <main>
+      <section id="posts">
+        <div class="post">
+          <div class="post-header">
+            <span class="username">@user1</span>
+            <span class="timestamp">2 hours ago</span>
+          </div>
+          <div class="post-content">
+            <p>
+              This is the content of the post. Lorem ipsum dolor sit amet,
+              consectetur adipiscing elit.
+            </p>
+            <img src="placeholder.jpg" alt="Placeholder Image" />
+          </div>
+          <div class="post-footer">
+            <button class="reply-btn">Reply</button>
+          </div>
+          <div class="replies">
+            <div class="reply">
+              <div class="reply-header">
+                <span class="username">@user2</span>
+                <span class="timestamp">1 hour ago</span>
+              </div>
+              <div class="reply-content">
+                <p>
+                  This is a reply to the post. Lorem ipsum dolor sit amet,
+                  consectetur adipiscing elit.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="post-form">
+        <h2>Create a Post</h2>
+        <form action="#" method="post" enctype="multipart/form-data">
+          <textarea
+            name="post-content"
+            placeholder="Write your post here..."
+            required
+          ></textarea>
+          <input type="file" name="post-image" accept="image/*" />
+          <button type="submit">Post</button>
+        </form>
+      </section>
+    </main>
+    <footer>
+      <p>&copy; 2024 Retro Tech Forum. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
