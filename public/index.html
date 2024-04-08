@@ -8,8 +8,15 @@
   </head>
   <body>
     <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      socket.on("connection", () => {
+        console.log("connected with frontend");
+      });
+    </script>
     <header>
-      <h1>Speak freely</h1>
+      <h1>Freedom of Speech</h1>
     </header>
     <main>
       <section id="posts">
@@ -57,8 +64,5 @@
         </form>
       </section>
     </main>
-    <footer>
-      <p>&copy; 2024 Retro Tech Forum. All rights reserved.</p>
-    </footer>
   </body>
 </html>
