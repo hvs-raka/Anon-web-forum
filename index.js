@@ -1,26 +1,58 @@
+// server.js
+
 const express = require("express");
 const http = require("http");
-const path = require("path");
-const { Server } = require("socket.io");
+const socketIo = require("socket.io");
 
 const app = express();
-const server = http.createServer();
-const io = new Server(server);
+const server = http.createServer(app);
+const io = socketIo(server);
 
-//socket io
+// Store messages in an array
+let messages = [];
+
+// Serve static files (HTML, CSS, JS)
+app.use(express.static("public"));
+
 io.on("connection", (socket) => {
-  socket.on("connection", () => {
-    console.log("Front-end is connected");
+  console.log("A user connected");
+
+  // Handle 'new-user' event
+  socket.on("new-user", (userData) => {
+    console.log(
+      "New user joined:",
+      userData.username,
+      "(ID: " + userData.userId + ")"
+    );
+  });
+
+  // Handle 'new-message' event
+  socket.on("new-message", (messageData) => {
+    console.log(
+      "New message posted by:",
+      messageData.username,
+      "(ID: " + messageData.userId + ")"
+    );
+    console.log("Message content:", messageData.messageContent);
+    // Add the message to the messages array
+    messages.push(messageData);
+    // Broadcast the message to all connected clients
+    io.emit("new-message", messageData);
+  });
+
+  // Handle 'get-messages' event
+  socket.on("get-messages", () => {
+    // Send all messages to the client requesting them
+    socket.emit("all-messages", messages);
+  });
+
+  // Handle 'disconnect' event
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
   });
 });
 
-app.use(express.static(path.resolve("./public")));
-
-app.get("/", (req, res) => {
-  return res.sendFile("/public/index.html");
-});
-
-const port = process.env.PORT || 9000;
-server.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

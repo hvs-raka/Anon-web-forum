@@ -10,9 +10,70 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io();
+      socket.on("connect", () => {
+        console.log("Connected to backend");
+      });
 
-      socket.on("connection", () => {
-        console.log("connected with frontend");
+      const username = prompt("Please enter your username:");
+
+      // Generate random user ID
+      const userId = Math.random().toString(36).substring(7);
+
+      // Send username and user ID to the server
+      socket.emit("new-user", { username, userId });
+
+      // Event listener for successful connection to the server
+      socket.on("connect", () => {
+        console.log("Connected to backend");
+        alert(
+          "Welcome to the Retro Tech Forum, " +
+            username +
+            "! Your user ID is: " +
+            userId
+        );
+      });
+
+      function postMessage() {
+        const messageContent = document.getElementById("message-content").value;
+        if (messageContent.trim() !== "") {
+          socket.emit("new-message", { userId, username, messageContent });
+        } else {
+          alert("Please enter a message to post.");
+        }
+      }
+
+      // Function to display a new message on the forum
+      function displayMessage(messageData) {
+        const postContent = document.querySelector(".post-content");
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message");
+        messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="username">${messageData.username}</span>
+                    <span class="timestamp">${new Date().toLocaleString()}</span>
+                </div>
+                <div class="message-content">
+                    <p>${messageData.messageContent}</p>
+                </div>
+            `;
+        postContent.appendChild(messageDiv);
+      }
+
+      // Event listener for receiving new messages from the server
+      socket.on("new-message", (messageData) => {
+        displayMessage(messageData);
+      });
+
+      // Fetch all messages from the server when the page loads
+      window.onload = function () {
+        socket.emit("get-messages");
+      };
+
+      // Event listener for receiving all messages from the server
+      socket.on("all-messages", (allMessages) => {
+        allMessages.forEach((messageData) => {
+          displayMessage(messageData);
+        });
       });
     </script>
     <header>
@@ -22,46 +83,19 @@
       <section id="posts">
         <div class="post">
           <div class="post-header">
-            <span class="username">@user1</span>
-            <span class="timestamp">2 hours ago</span>
+            
           </div>
-          <div class="post-content">
-            <p>
-              This is the content of the post. Lorem ipsum dolor sit amet,
-              consectetur adipiscing elit.
-            </p>
-            <img src="placeholder.jpg" alt="Placeholder Image" />
-          </div>
-          <div class="post-footer">
-            <button class="reply-btn">Reply</button>
-          </div>
-          <div class="replies">
-            <div class="reply">
-              <div class="reply-header">
-                <span class="username">@user2</span>
-                <span class="timestamp">1 hour ago</span>
-              </div>
-              <div class="reply-content">
-                <p>
-                  This is a reply to the post. Lorem ipsum dolor sit amet,
-                  consectetur adipiscing elit.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+          <section class="post-content">
+            <!-- Posted messages will be displayed here -->
+          </section>
       <section id="post-form">
         <h2>Create a Post</h2>
-        <form action="#" method="post" enctype="multipart/form-data">
-          <textarea
-            name="post-content"
-            placeholder="Write your post here..."
-            required
-          ></textarea>
-          <input type="file" name="post-image" accept="image/*" />
-          <button type="submit">Post</button>
-        </form>
+        <textarea
+          id="message-content"
+          placeholder="Write your message here..."
+          required
+        ></textarea>
+        <button onclick="postMessage()">Post</button>
       </section>
     </main>
   </body>
