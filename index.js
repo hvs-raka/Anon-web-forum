@@ -46,6 +46,30 @@ io.on("connection", (socket) => {
     socket.emit("all-messages", messages);
   });
 
+  // Handle 'new-reply' event
+  socket.on("new-reply", (replyData) => {
+    console.log(
+      "New reply posted by:",
+      replyData.username,
+      "(ID: " + replyData.userId + ")"
+    );
+    console.log("Reply content:", replyData.replyContent);
+
+    // Find the message by its ID
+    const messageIndex = messages.findIndex(
+      (message) => message.id === replyData.messageId
+    );
+    if (messageIndex !== -1) {
+      // Add the reply to the message's replies array
+      messages[messageIndex].replies.push({
+        username: replyData.username,
+        replyContent: replyData.replyContent,
+      });
+      // Broadcast the updated message to all connected clients
+      io.emit("updated-message", messages[messageIndex]);
+    }
+  });
+
   // Handle 'disconnect' event
   socket.on("disconnect", () => {
     console.log("A user disconnected");

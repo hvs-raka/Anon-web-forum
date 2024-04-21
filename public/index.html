@@ -34,13 +34,13 @@
       });
 
       function postMessage() {
-        const messageContent = document.getElementById("message-content").value;
-        if (messageContent.trim() !== "") {
-          socket.emit("new-message", { userId, username, messageContent });
-        } else {
-          alert("Please enter a message to post.");
+            const messageContent = document.getElementById("message-content").value;
+            if (messageContent.trim() !== "") {
+                socket.emit("new-message", { userId, username, messageContent });
+            } else {
+                alert("Please enter a message to post.");
+            }
         }
-      }
 
       // Function to display a new message on the forum
       function displayMessage(messageData) {
@@ -55,6 +55,12 @@
                 <div class="message-content">
                     <p>${messageData.messageContent}</p>
                 </div>
+                <div class="message-footer">
+              <button class="reply-btn" onclick="replyToMessage('message_id')">Reply</button>
+          </div>
+          <div class="replies-container">
+        <!-- Replies will be displayed here -->
+    </div>
             `;
         postContent.appendChild(messageDiv);
       }
@@ -75,6 +81,40 @@
           displayMessage(messageData);
         });
       });
+
+
+      // Function to handle replying to a message
+    function replyToMessage(messageId) {
+        const replyContent = prompt("Enter your reply:");
+        if (replyContent.trim() !== "") {
+            // Emit a "new-reply" event to the server
+            socket.emit("new-reply", { messageId, replyContent });
+        } else {
+            alert("Please enter a reply.");
+        }
+    }
+
+    // Event listener for receiving new replies from the server
+    socket.on("new-reply", (replyData) => {
+        // Find the message by its ID
+        const messageDiv = document.querySelector(`[data-message-id="${replyData.messageId}"]`);
+        if (messageDiv) {
+            // Create a new div element for the reply
+            const replyDiv = document.createElement('div');
+            replyDiv.classList.add('reply');
+            replyDiv.innerHTML = `
+                <div class="reply-header">
+                    <span class="username">${replyData.username}</span>
+                </div>
+                <div class="reply-content">
+                    <p>${replyData.replyContent}</p>
+                </div>
+            `;
+            // Append the reply to the message's replies container
+            const repliesContainer = messageDiv.querySelector('.replies-container');
+            repliesContainer.appendChild(replyDiv);
+        }
+    });
     </script>
     <header>
       <h1>Freedom of Speech</h1>
@@ -86,7 +126,13 @@
             
           </div>
           <section class="post-content">
-            <!-- Posted messages will be displayed here -->
+            <div class="message-header">
+              <span class="username">Owner</span>
+          </div>
+          <div class="message-content">
+              <p>A safe place to share your thoughts and Ideas</p>
+          </div>
+            
           </section>
       <section id="post-form">
         <h2>Create a Post</h2>
