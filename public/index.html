@@ -7,122 +7,6 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const socket = io();
-      socket.on("connect", () => {
-        console.log("Connected to backend");
-      });
-
-      const username = prompt("Please enter your username:");
-
-      // Generate random user ID
-      const userId = Math.random().toString(36).substring(7);
-
-      // Send username and user ID to the server
-      socket.emit("new-user", { username, userId });
-
-      // Event listener for successful connection to the server
-      socket.on("connect", () => {
-        console.log("Connected to backend");
-        alert(
-          "Welcome to the Retro Tech Forum, " +
-            username +
-            "! Your user ID is: " +
-            userId
-        );
-      });
-
-      function postMessage() {
-        const messageContent = document.getElementById("message-content").value;
-        if (messageContent.trim() !== "") {
-          socket.emit("new-message", { userId, username, messageContent });
-        } else {
-          alert("Please enter a message to post.");
-        }
-      }
-
-      // Function to display a new message on the forum
-      function displayMessage(messageData) {
-        const postsSection = document.getElementById("posts");
-        const postDiv = document.createElement("div");
-        postDiv.classList.add("post");
-        postDiv.innerHTML = `
-        <div class="post-header">
-            <span class="username">${messageData.username}</span>
-            <span class="timestamp">${new Date().toLocaleString()}</span>
-        </div>
-        <div class="post-content">
-            <div class="message-content">
-                <p>${messageData.messageContent}</p>
-            </div>
-            <div class="replies-container" data-post-id="${
-              messageData.messageId
-            }">
-                <!-- Replies will be displayed here -->
-            </div>
-        </div>
-        <div class="post-footer">
-            <button class="reply-btn" onclick="replyToMessage('${
-              messageData.messageId
-            }')">Reply</button>
-        </div>
-    `;
-        postsSection.appendChild(postDiv);
-      }
-
-      // Event listener for receiving new messages from the server
-      socket.on("new-message", (messageData) => {
-        displayMessage(messageData);
-      });
-
-      // Fetch all messages from the server when the page loads
-      window.onload = function () {
-        socket.emit("get-messages");
-      };
-
-      // Event listener for receiving all messages from the server
-      socket.on("all-messages", (allMessages) => {
-        allMessages.forEach((messageData) => {
-          displayMessage(messageData);
-        });
-      });
-
-      // Function to handle replying to a message
-      function replyToMessage(messageId) {
-        const replyContent = prompt("Enter your reply:");
-        if (replyContent.trim() !== "") {
-          // Emit a "new-reply" event to the server
-          socket.emit("new-reply", { messageId, replyContent });
-        } else {
-          alert("Please enter a reply.");
-        }
-      }
-
-      socket.on("new-reply", (replyData) => {
-        // Find the post container by its ID
-        const postContainer = document.querySelector(
-          `[data-post-id="${replyData.messageId}"]`
-        );
-        if (postContainer) {
-          // Create a new div element for the reply
-          const replyDiv = document.createElement("div");
-          replyDiv.classList.add("reply");
-          replyDiv.innerHTML = `
-      <div class="reply-header">
-        <span class="username">${replyData.username}</span>
-      </div>
-      <div class="reply-content">
-        <p>${replyData.replyContent}</p>
-      </div>
-    `;
-          // Append the reply to the post's replies container
-          const repliesContainer =
-            postContainer.querySelector(".replies-container");
-          repliesContainer.appendChild(replyDiv);
-        }
-      });
-    </script>
     <header>
       <h1>Freedom of Speech</h1>
     </header>
@@ -140,5 +24,8 @@
         <button onclick="postMessage()">Post</button>
       </section>
     </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
   </body>
 </html>
