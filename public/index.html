@@ -34,35 +34,41 @@
       });
 
       function postMessage() {
-            const messageContent = document.getElementById("message-content").value;
-            if (messageContent.trim() !== "") {
-                socket.emit("new-message", { userId, username, messageContent });
-            } else {
-                alert("Please enter a message to post.");
-            }
+        const messageContent = document.getElementById("message-content").value;
+        if (messageContent.trim() !== "") {
+          socket.emit("new-message", { userId, username, messageContent });
+        } else {
+          alert("Please enter a message to post.");
         }
+      }
 
       // Function to display a new message on the forum
       function displayMessage(messageData) {
-        const postContent = document.querySelector(".post-content");
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add("message");
-        messageDiv.innerHTML = `
-                <div class="message-header">
-                    <span class="username">${messageData.username}</span>
-                    <span class="timestamp">${new Date().toLocaleString()}</span>
-                </div>
-                <div class="message-content">
-                    <p>${messageData.messageContent}</p>
-                </div>
-                <div class="message-footer">
-              <button class="reply-btn" onclick="replyToMessage('message_id')">Reply</button>
-          </div>
-          <div class="replies-container">
-        <!-- Replies will be displayed here -->
-    </div>
-            `;
-        postContent.appendChild(messageDiv);
+        const postsSection = document.getElementById("posts");
+        const postDiv = document.createElement("div");
+        postDiv.classList.add("post");
+        postDiv.innerHTML = `
+        <div class="post-header">
+            <span class="username">${messageData.username}</span>
+            <span class="timestamp">${new Date().toLocaleString()}</span>
+        </div>
+        <div class="post-content">
+            <div class="message-content">
+                <p>${messageData.messageContent}</p>
+            </div>
+            <div class="replies-container" data-post-id="${
+              messageData.messageId
+            }">
+                <!-- Replies will be displayed here -->
+            </div>
+        </div>
+        <div class="post-footer">
+            <button class="reply-btn" onclick="replyToMessage('${
+              messageData.messageId
+            }')">Reply</button>
+        </div>
+    `;
+        postsSection.appendChild(postDiv);
       }
 
       // Event listener for receiving new messages from the server
@@ -82,58 +88,48 @@
         });
       });
 
-
       // Function to handle replying to a message
-    function replyToMessage(messageId) {
+      function replyToMessage(messageId) {
         const replyContent = prompt("Enter your reply:");
         if (replyContent.trim() !== "") {
-            // Emit a "new-reply" event to the server
-            socket.emit("new-reply", { messageId, replyContent });
+          // Emit a "new-reply" event to the server
+          socket.emit("new-reply", { messageId, replyContent });
         } else {
-            alert("Please enter a reply.");
+          alert("Please enter a reply.");
         }
-    }
+      }
 
-    // Event listener for receiving new replies from the server
-    socket.on("new-reply", (replyData) => {
-        // Find the message by its ID
-        const messageDiv = document.querySelector(`[data-message-id="${replyData.messageId}"]`);
-        if (messageDiv) {
-            // Create a new div element for the reply
-            const replyDiv = document.createElement('div');
-            replyDiv.classList.add('reply');
-            replyDiv.innerHTML = `
-                <div class="reply-header">
-                    <span class="username">${replyData.username}</span>
-                </div>
-                <div class="reply-content">
-                    <p>${replyData.replyContent}</p>
-                </div>
-            `;
-            // Append the reply to the message's replies container
-            const repliesContainer = messageDiv.querySelector('.replies-container');
-            repliesContainer.appendChild(replyDiv);
+      socket.on("new-reply", (replyData) => {
+        // Find the post container by its ID
+        const postContainer = document.querySelector(
+          `[data-post-id="${replyData.messageId}"]`
+        );
+        if (postContainer) {
+          // Create a new div element for the reply
+          const replyDiv = document.createElement("div");
+          replyDiv.classList.add("reply");
+          replyDiv.innerHTML = `
+      <div class="reply-header">
+        <span class="username">${replyData.username}</span>
+      </div>
+      <div class="reply-content">
+        <p>${replyData.replyContent}</p>
+      </div>
+    `;
+          // Append the reply to the post's replies container
+          const repliesContainer =
+            postContainer.querySelector(".replies-container");
+          repliesContainer.appendChild(replyDiv);
         }
-    });
+      });
     </script>
     <header>
       <h1>Freedom of Speech</h1>
     </header>
     <main>
       <section id="posts">
-        <div class="post">
-          <div class="post-header">
-            
-          </div>
-          <section class="post-content">
-            <div class="message-header">
-              <span class="username">Owner</span>
-          </div>
-          <div class="message-content">
-              <p>A safe place to share your thoughts and Ideas</p>
-          </div>
-            
-          </section>
+        <!-- Posts will be displayed here -->
+      </section>
       <section id="post-form">
         <h2>Create a Post</h2>
         <textarea

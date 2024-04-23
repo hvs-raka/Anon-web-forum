@@ -65,8 +65,10 @@ main {
     cursor: pointer;
 }
 
-.replies {
-    margin-top: 10px;
+
+/* Aur existing CSS rules */
+.replies-container {
+    margin-top: 10px; /* Add margin-top to create space between message content and replies */
 }
 
 .reply {
@@ -81,6 +83,16 @@ main {
     justify-content: space-between;
     margin-bottom: 5px;
 }
+
+/* New CSS rule to position replies below messages */
+.reply {
+    margin-top: 20px; /* Add margin-top to create space between replies */
+}
+
+.replies {
+    margin-top: 10px;
+}
+
 
 .post-form {
     background-color: #444;

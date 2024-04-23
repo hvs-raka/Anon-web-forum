@@ -1,5 +1,3 @@
-// server.js
-
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
@@ -34,6 +32,8 @@ io.on("connection", (socket) => {
       "(ID: " + messageData.userId + ")"
     );
     console.log("Message content:", messageData.messageContent);
+    // Assigning a unique ID to each message
+    messageData.id = generateMessageId(); // Assuming you have a function generateMessageId to generate unique IDs
     // Add the message to the messages array
     messages.push(messageData);
     // Broadcast the message to all connected clients
@@ -55,6 +55,9 @@ io.on("connection", (socket) => {
     );
     console.log("Reply content:", replyData.replyContent);
 
+    // Emitting new-reply event to all connected clients
+    io.emit("new-reply", replyData);
+
     // Find the message by its ID
     const messageIndex = messages.findIndex(
       (message) => message.id === replyData.messageId
@@ -75,6 +78,22 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 });
+
+// Function to generate a unique message ID
+function generateMessageId() {
+  return Math.random().toString(36).substring(7);
+}
+
+// Function to handle replying to a message
+function replyToMessage(messageId) {
+  const replyContent = prompt("Enter your reply:");
+  if (replyContent.trim() !== "") {
+    // Emit a "new-reply" event to the server
+    socket.emit("new-reply", { messageId, replyContent, userId, username });
+  } else {
+    alert("Please enter a reply.");
+  }
+}
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
