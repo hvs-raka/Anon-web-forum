@@ -12,7 +12,18 @@
     </header>
     <main>
       <section id="posts">
+        <div class="post-header">
+          <span class="username"><h3>Owner</h3></span>
+        </div>
+        <div class="post-content">
+          <div class="message-content">
+            <p><h3>Feel the freedom of speech.</h3></p>
+            <div class="replies-container">
+              <!-- Replies will be displayed here -->
+            </div>
+          </div>
         <!-- Posts will be displayed here -->
+
       </section>
       <section id="post-form">
         <h2>Create a Post</h2>
@@ -26,6 +37,6 @@
     </main>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
+    <script src="client.js" defer></script>
   </body>
 </html>

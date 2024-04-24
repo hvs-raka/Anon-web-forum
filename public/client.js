@@ -28,6 +28,28 @@ function postMessage() {
   }
 }
 
+socket.on("new-reply", (replyData) => {
+  const postContainer = document.querySelector(
+    `[data-post-id="${replyData.messageId}"]`
+  );
+  const repliesContainer = postContainer.querySelector(".replies-container");
+  if (postContainer) {
+    const replyDiv = document.createElement("div");
+    replyDiv.classList.add("reply");
+    replyDiv.innerHTML = `
+      <div class="reply-header">
+        <span class="username">${replyData.username}</span>
+      </div>
+      <div class="reply-content">
+        <p>${replyData.replyContent}</p>
+      </div>
+    `;
+    console.log("repliesContainer:", repliesContainer);
+
+    repliesContainer.appendChild(replyDiv);
+  }
+});
+
 function displayMessage(messageData) {
   const postsSection = document.getElementById("posts");
   const postDiv = document.createElement("div");
@@ -69,30 +91,12 @@ socket.on("all-messages", (allMessages) => {
 });
 
 function replyToMessage(messageId) {
+  console.log("Message ID:", messageId);
   const replyContent = prompt("Enter your reply:");
   if (replyContent.trim() !== "") {
+    // Emit a "new-reply" event to the server
     socket.emit("new-reply", { messageId, replyContent });
   } else {
     alert("Please enter a reply.");
   }
 }
-
-socket.on("new-reply", (replyData) => {
-  const postContainer = document.querySelector(
-    `[data-post-id="${replyData.messageId}"]`
-  );
-  if (postContainer) {
-    const replyDiv = document.createElement("div");
-    replyDiv.classList.add("reply");
-    replyDiv.innerHTML = `
-      <div class="reply-header">
-        <span class="username">${replyData.username}</span>
-      </div>
-      <div class="reply-content">
-        <p>${replyData.replyContent}</p>
-      </div>
-    `;
-    const repliesContainer = postContainer.querySelector(".replies-container");
-    repliesContainer.appendChild(replyDiv);
-  }
-});
