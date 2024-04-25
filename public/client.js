@@ -28,28 +28,6 @@ function postMessage() {
   }
 }
 
-socket.on("new-reply", (replyData) => {
-  const postContainer = document.querySelector(
-    `[data-post-id="${replyData.messageId}"]`
-  );
-  const repliesContainer = postContainer.querySelector(".replies-container");
-  if (postContainer) {
-    const replyDiv = document.createElement("div");
-    replyDiv.classList.add("reply");
-    replyDiv.innerHTML = `
-      <div class="reply-header">
-        <span class="username">${replyData.username}</span>
-      </div>
-      <div class="reply-content">
-        <p>${replyData.replyContent}</p>
-      </div>
-    `;
-    console.log("repliesContainer:", repliesContainer);
-
-    repliesContainer.appendChild(replyDiv);
-  }
-});
-
 function displayMessage(messageData) {
   const postsSection = document.getElementById("posts");
   const postDiv = document.createElement("div");
@@ -75,6 +53,34 @@ function displayMessage(messageData) {
   `;
   postsSection.appendChild(postDiv);
 }
+
+socket.on("new-reply", (replyData) => {
+  const postContainer = document.querySelector(
+    `[data-post-id="${replyData.messageId}"]`
+  );
+  if (postContainer) {
+    const repliesContainer =
+      postContainer.getElementsByClassName("replies-container");
+    if (repliesContainer) {
+      const replyDiv = document.createElement("div");
+      replyDiv.classList.add("reply");
+      replyDiv.innerHTML = `
+        <div class="reply-header">
+          <span class="username">${replyData.username}</span>
+        </div>
+        <div class="reply-content">
+          <p>${replyData.replyContent}</p>
+        </div>
+      `;
+      console.log("repliesContainer:", repliesContainer);
+      repliesContainer.appendChild(replyDiv);
+    } else {
+      console.error("Replies container not found in the post.");
+    }
+  } else {
+    console.error("Post container not found.");
+  }
+});
 
 socket.on("new-message", (messageData) => {
   displayMessage(messageData);
