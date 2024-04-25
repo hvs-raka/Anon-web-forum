@@ -28,6 +28,84 @@ function postMessage() {
   }
 }
 
+socket.on("new-image", (imageData) => {
+  displayImage(imageData.imageDataURL);
+});
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    console.error("No file selected.");
+    return;
+  }
+  if (!file.type.match("image.*")) {
+    console.error("Selected file is not an image.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function () {
+    const imageDataURL = reader.result;
+    const img = new Image();
+    img.src = imageDataURL;
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const dataURL = canvas.toDataURL("image/jpeg");
+      socket.emit("new-image", { imageDataURL: dataURL });
+    };
+  };
+
+  reader.readAsDataURL(file);
+}
+
+// Add event listener for the upload button
+document
+  .getElementById("image-upload")
+  .addEventListener("change", handleImageUpload);
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function () {
+    const imageDataURL = reader.result;
+    const img = new Image();
+    img.src = imageDataURL;
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const dataURL = canvas.toDataURL("image/jpeg");
+      socket.emit("new-image", { imageDataURL: dataURL });
+    };
+  };
+
+  reader.readAsDataURL(file);
+}
+
+function displayImage(imageDataURL) {
+  const postsSection = document.getElementById("posts");
+  const imageDiv = document.createElement("div");
+  imageDiv.classList.add("post");
+  imageDiv.innerHTML = `
+    <div class="post-header">
+      <span class="username">Anonymous</span>
+      <span class="timestamp">${new Date().toLocaleString()}</span>
+    </div>
+    <div class="post-content">
+      <img src="${imageDataURL}" alt="Posted Image" />
+    </div>
+  `;
+  postsSection.appendChild(imageDiv);
+}
+
 function displayMessage(messageData) {
   const postsSection = document.getElementById("posts");
   const postDiv = document.createElement("div");
