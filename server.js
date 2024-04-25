@@ -21,6 +21,13 @@ io.on("connection", (socket) => {
     );
   });
 
+  // Handle new image upload
+  socket.on("new-image", (imageData) => {
+    console.log("New image uploaded:", imageData);
+    // Process the uploaded image here
+    // For now, let's just log the image data
+  });
+
   socket.on("new-message", (messageData) => {
     console.log(
       "New message posted by:",
